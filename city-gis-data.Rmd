@@ -1,0 +1,31 @@
+---
+title: "city-GIS-data"
+author: "Matthew Ho"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(opendatatoronto)
+library(dplyr)
+
+	
+# get package
+package <- show_package("9a284a84-b9ff-484b-9e30-82f22c1780b9")
+package
+ 
+# get all resources for this package
+resources <- list_package_resources("9a284a84-b9ff-484b-9e30-82f22c1780b9")
+ 
+# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+ 
+# load the first datastore resource as a sample
+data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+data
+```
+
