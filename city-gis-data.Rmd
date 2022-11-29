@@ -9,9 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, warning = F}
 library(opendatatoronto)
 library(dplyr)
+library(stringr)
+library(mapview)
+library(leafem)
+library(leaflet)
+
+
+
+mapviewOptions(fgb = FALSE)
 
 	
 # get package
@@ -26,6 +34,50 @@ datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'
  
 # load the first datastore resource as a sample
 data <- filter(datastore_resources, row_number()==1) %>% get_resource()
-data
+unique(data$AREA_CLASS)
+
+data_parks <- data %>% 
+  filter(AREA_CLASS == "Park")
+
+data_other_unknown <- data %>% 
+  filter(AREA_CLASS == "OTHER_UNKNOWN")
+
+data %>% 
+  filter(AREA_NAME == "ASQUITH")
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = data_parks$geometry, 
+              popup = data_parks$AREA_NAME)
+
+```
+
+```{r POPS_only}
+POPdata <- read.csv("COT_POPS_points.csv")
+
+
+POPsample <- POPdata %>% 
+  filter(status == "EXISTING") %>% 
+  filter(str_detect(description, "parkette") | 
+           str_detect(description, "garden") |
+           str_detect(description, "open space") | 
+           str_detect(description, "open spaces") |
+           str_detect(description, "landscaping") |
+           str_detect(description, "landscaped")) %>% 
+  group_by(ward_and_num) %>% 
+  sample_frac(0.5)
+
+
+leaflet(POPsample) %>% 
+  addTiles() %>% 
+  addMarkers(~longitude, 
+             ~latitude, 
+             popup = paste("Address:", POPsample$location, "<br>",
+                           "Description:", POPsample$description, "<br>",
+                           "Ward:", POPsample$ward_and_num))
+
+
+
+
 ```
 
