@@ -16,6 +16,9 @@ library(stringr)
 library(mapview)
 library(leafem)
 library(leaflet)
+library(tidyr)
+library(arules)
+library(lmerTest)
 
 
 
@@ -76,8 +79,69 @@ leaflet(POPsample) %>%
                            "Description:", POPsample$description, "<br>",
                            "Ward:", POPsample$ward_and_num))
 
+```
+
+```{r data}
+site_info <- read.csv("site_info.csv")
+sampled_data <- read.csv("sampled_data.csv")
+
+# Pivoting
+sampled_data_long <- sampled_data %>% 
+  pivot_longer(cols = c("a444_Yonge", "a200_Bloor_E", "a76_Davenport", "a130_Adelaide_W", "a77_Adelaide_W", "a40_King_W", "a161_Bay_W", "a220_Bay", "a123_Front"),
+               names_to = c("site"),
+               names_repair = ~ make.unique(.x),
+               values_to = c("species"))
+
+# Calculating native percentages
+
+native_percentages <- sampled_data_long %>% 
+  filter(!is.na(species.1)) %>% 
+  group_by(site) %>% 
+  summarise(perc.native = (sum(native == "Y"))/n())
+
+# Merging native percentages with site info
+
+site_data <- left_join(site_info, native_percentages, by = c("site.address" = "site"), all.x=TRUE)
+
+# Binning each random variable
+
+site_data_binned <- site_data %>% 
+  mutate(build.height.bin = discretize(build.height.ft,
+                                       method = "interval",
+                                       breaks = 3,
+                                       labels = c("short", "mid", "tall"))) %>% 
+  mutate(POPS.age.bin = discretize(POPS.age,
+                                       method = "interval",
+                                       breaks = 3,
+                                       labels = c("recent", "interm", "old")))
+
+# Making each ward a factor
+
+as.factor(site_data_binned$ward.income)
+as.factor(site_data_binned$build.type)
+
+# LMER
+
+m1 <- lmer(perc.native ~ site.area +
+             (1 | build.height.bin) + 
+             (1 | POPS.age.bin) +
+             (1 | ward.income) + 
+             (1 | build.type),
+           data = site_data_binned)
+
+summary(m1)
+
+plot(m1)
+
+
+# NMDS Plots
+library(vegan)
+
+
+
 
 
 
 ```
+
 

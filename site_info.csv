@@ -1,0 +1,10 @@
+﻿site.address,site.area,ward.name,ward.density,ward.income,build.height.ft,POPS.age,build.type
+a444_Yonge,"1,700",University-Rosedale (11),77,"170,832",144,38,R
+a200_Bloor_E,8000,University-Rosedale (11),77,"170,832",157,41,C
+a76_Davenport,330,University-Rosedale (11),77,"170,832",262,8,R
+a130_Adelaide_W,100,Spadina-Fort York (10),62,"103,047",465,44,C
+a77_Adelaide_W,1500,Spadina-Fort York (10),62,"103,047",978,47,C
+a40_King_W,800,Toronto Centre (13),184,"75,382",902,34,C
+a161_Bay_W,1700,Toronto Centre (13),184,"75,382",856,32,C
+a220_Bay,150,Spadina-Fort York (10),62,"103,047",154,27,C
+a123_Front,600,Spadina-Fort York (10),62,"103,047",207,39,C
